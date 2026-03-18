@@ -282,8 +282,10 @@ class DockMonitor {
 
         if let frontApp = NSWorkspace.shared.frontmostApplication {
             NSLog("[DockMonitor] 切换应用窗口状态: %@", frontApp.localizedName ?? "Unknown")
-            WindowMinimizer.shared.toggleMinimization(app: frontApp)
-            return true  // Event consumed - prevent system from activating the app
+            let shouldConsume = WindowMinimizer.shared.toggleMinimization(app: frontApp)
+            // 最小化时消费事件（阻止系统重新激活应用）
+            // 恢复时让系统处理事件（系统会激活应用并恢复窗口）
+            return shouldConsume
         }
 
         return false
