@@ -13,14 +13,6 @@
 		AAA004 /* DockMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA104 /* DockMonitor.swift */; };
 		AAA005 /* WindowMinimizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA105 /* WindowMinimizer.swift */; };
 		AAA006 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AAA106 /* Assets.xcassets */; };
-		B58DC67A2F6A53CC00A3DCA4 /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = B58DC6792F6A53CC00A3DCA4 /* icon.png */; };
-		B58DC6832F6A57A000A3DCA4 /* 32.png in Resources */ = {isa = PBXBuildFile; fileRef = B58DC67C2F6A57A000A3DCA4 /* 32.png */; };
-		B58DC6842F6A57A000A3DCA4 /* 128.png in Resources */ = {isa = PBXBuildFile; fileRef = B58DC67E2F6A57A000A3DCA4 /* 128.png */; };
-		B58DC6852F6A57A000A3DCA4 /* 64.png in Resources */ = {isa = PBXBuildFile; fileRef = B58DC67D2F6A57A000A3DCA4 /* 64.png */; };
-		B58DC6862F6A57A000A3DCA4 /* 16.png in Resources */ = {isa = PBXBuildFile; fileRef = B58DC67B2F6A57A000A3DCA4 /* 16.png */; };
-		B58DC6872F6A57A000A3DCA4 /* 1024.png in Resources */ = {isa = PBXBuildFile; fileRef = B58DC6812F6A57A000A3DCA4 /* 1024.png */; };
-		B58DC6882F6A57A000A3DCA4 /* 512.png in Resources */ = {isa = PBXBuildFile; fileRef = B58DC6802F6A57A000A3DCA4 /* 512.png */; };
-		B58DC6892F6A57A000A3DCA4 /* 256.png in Resources */ = {isa = PBXBuildFile; fileRef = B58DC67F2F6A57A000A3DCA4 /* 256.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,14 +24,6 @@
 		AAA105 /* WindowMinimizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowMinimizer.swift; sourceTree = "<group>"; };
 		AAA106 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AAA107 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		B58DC6792F6A53CC00A3DCA4 /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
-		B58DC67B2F6A57A000A3DCA4 /* 16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 16.png; sourceTree = "<group>"; };
-		B58DC67C2F6A57A000A3DCA4 /* 32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 32.png; sourceTree = "<group>"; };
-		B58DC67D2F6A57A000A3DCA4 /* 64.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 64.png; sourceTree = "<group>"; };
-		B58DC67E2F6A57A000A3DCA4 /* 128.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 128.png; sourceTree = "<group>"; };
-		B58DC67F2F6A57A000A3DCA4 /* 256.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 256.png; sourceTree = "<group>"; };
-		B58DC6802F6A57A000A3DCA4 /* 512.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 512.png; sourceTree = "<group>"; };
-		B58DC6812F6A57A000A3DCA4 /* 1024.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 1024.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -69,8 +53,6 @@
 				AAA303 /* Models */,
 				AAA304 /* Services */,
 				AAA106 /* Assets.xcassets */,
-				B58DC6792F6A53CC00A3DCA4 /* icon.png */,
-				B58DC6822F6A57A000A3DCA4 /* macOS 2 */,
 				AAA107 /* Info.plist */,
 			);
 			path = DockMinimizer;
@@ -99,20 +81,6 @@
 				AAA105 /* WindowMinimizer.swift */,
 			);
 			path = Services;
-			sourceTree = "<group>";
-		};
-		B58DC6822F6A57A000A3DCA4 /* macOS 2 */ = {
-			isa = PBXGroup;
-			children = (
-				B58DC67B2F6A57A000A3DCA4 /* 16.png */,
-				B58DC67C2F6A57A000A3DCA4 /* 32.png */,
-				B58DC67D2F6A57A000A3DCA4 /* 64.png */,
-				B58DC67E2F6A57A000A3DCA4 /* 128.png */,
-				B58DC67F2F6A57A000A3DCA4 /* 256.png */,
-				B58DC6802F6A57A000A3DCA4 /* 512.png */,
-				B58DC6812F6A57A000A3DCA4 /* 1024.png */,
-			);
-			path = "macOS 2";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -173,14 +141,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B58DC6832F6A57A000A3DCA4 /* 32.png in Resources */,
-				B58DC6842F6A57A000A3DCA4 /* 128.png in Resources */,
-				B58DC6852F6A57A000A3DCA4 /* 64.png in Resources */,
-				B58DC6862F6A57A000A3DCA4 /* 16.png in Resources */,
-				B58DC6872F6A57A000A3DCA4 /* 1024.png in Resources */,
-				B58DC6882F6A57A000A3DCA4 /* 512.png in Resources */,
-				B58DC6892F6A57A000A3DCA4 /* 256.png in Resources */,
-				B58DC67A2F6A53CC00A3DCA4 /* icon.png in Resources */,
 				AAA006 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
