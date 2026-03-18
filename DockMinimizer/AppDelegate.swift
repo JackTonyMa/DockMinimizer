@@ -49,8 +49,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         if !hasPermission {
             showPermissionAlert()
-            // Request permission
-            let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
+            // 使用 kAXTrustedCheckOptionPrompt: false 来检查权限状态
+            // 不使用系统自动提示，避免与自定义提示面板重复弹窗
+            let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: false] as CFDictionary
             _ = AXIsProcessTrustedWithOptions(options)
         }
     }
