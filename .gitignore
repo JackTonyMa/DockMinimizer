@@ -1,5 +1,65 @@
-/.idea/
-/.claude/
-/CLAUDE.md
-/generate_rounded_icons.swift
-/PACKAGE.md
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# Xcode
+build/
+DerivedData/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+*.xccheckout
+*.moved-aside
+*.xcuserstate
+*.xcscmblueprint
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# CocoaPods
+Pods/
+*.xcworkspace
+!default.xcworkspace
+
+# Swift Package Manager
+.swiftpm/
+.build/
+Packages/
+Package.pins
+Package.resolved
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Claude Code
+.claude/
+CLAUDE.md
+
+# Build products
+*.app/
+*.zip
+*.dmg
+
+# Logs
+*.log
+~/Library/Logs/DockMinimizer/
+
+# Temp files
+*.tmp
+*.swp
+*~
+
+# Project specific
+PACKAGE.md

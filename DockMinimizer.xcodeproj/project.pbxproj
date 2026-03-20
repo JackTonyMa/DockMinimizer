@@ -13,6 +13,7 @@
 		AAA004 /* DockMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA104 /* DockMonitor.swift */; };
 		AAA005 /* WindowMinimizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA105 /* WindowMinimizer.swift */; };
 		AAA006 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AAA106 /* Assets.xcassets */; };
+		AAA007 /* LogService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA108 /* LogService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +25,7 @@
 		AAA105 /* WindowMinimizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowMinimizer.swift; sourceTree = "<group>"; };
 		AAA106 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AAA107 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AAA108 /* LogService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,6 +81,7 @@
 			children = (
 				AAA104 /* DockMonitor.swift */,
 				AAA105 /* WindowMinimizer.swift */,
+				AAA108 /* LogService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -157,6 +160,7 @@
 				AAA003 /* AppState.swift in Sources */,
 				AAA004 /* DockMonitor.swift in Sources */,
 				AAA005 /* WindowMinimizer.swift in Sources */,
+				AAA007 /* LogService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
