@@ -17,7 +17,7 @@ func isAccessibilityActuallyWorking() -> Bool {
 // Global callback function for CGEventTap
 private func globalEventCallback(proxy: CGEventTapProxy, type: CGEventType, event: CGEvent, userInfo: UnsafeMutableRawPointer?) -> Unmanaged<CGEvent>? {
     guard let userInfo = userInfo else {
-        return Unmanaged.passRetained(event)
+        return Unmanaged.passUnretained(event)
     }
 
     let monitor = Unmanaged<DockMonitor>.fromOpaque(userInfo).takeUnretainedValue()
@@ -26,14 +26,14 @@ private func globalEventCallback(proxy: CGEventTapProxy, type: CGEventType, even
     if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
         LogService.shared.log(level: .warning, category: "DockMonitor", message: "[回调] 检测到 tap 禁用事件")
         monitor.handleTapDisabled()
-        return Unmanaged.passRetained(event)
+        return Unmanaged.passUnretained(event)
     }
 
     // 检查 tap 是否仍然有效
     if let tap = monitor.eventTap, !CGEvent.tapIsEnabled(tap: tap) {
         LogService.shared.log(level: .warning, category: "DockMonitor", message: "[回调] tap 已被禁用，立即停止并返回事件")
         monitor.handleTapDisabled()
-        return Unmanaged.passRetained(event)
+        return Unmanaged.passUnretained(event)
     }
 
     // 使用轻量的权限检查，避免在回调中执行可能阻塞的 API 调用
@@ -41,11 +41,11 @@ private func globalEventCallback(proxy: CGEventTapProxy, type: CGEventType, even
     if !AXIsProcessTrusted() {
         LogService.shared.log(level: .warning, category: "DockMonitor", message: "[回调] 权限已撤销，立即停止并返回事件")
         monitor.handleTapDisabled()
-        return Unmanaged.passRetained(event)
+        return Unmanaged.passUnretained(event)
     }
 
     let consumed = monitor.handleEvent(proxy: proxy, type: type, event: event)
-    return consumed ? nil : Unmanaged.passRetained(event)
+    return consumed ? nil : Unmanaged.passUnretained(event)
 }
 
 /// Monitors Dock icon clicks
