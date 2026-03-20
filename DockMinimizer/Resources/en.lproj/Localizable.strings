@@ -30,6 +30,10 @@
 "Quit App" = "Quit App";
 "Enable logging to record app operations for troubleshooting" = "Enable logging to record app operations for troubleshooting";
 
+/* Launch at Login */
+"Launch at Login" = "Launch at Login";
+"Automatically start DockMinimizer when you log in" = "Automatically start DockMinimizer when you log in";
+
 /* Permission Alerts */
 "Accessibility Permission Required" = "Accessibility Permission Required";
 "DockMinimizer requires accessibility permission to monitor and operate windows of other applications.\n\nPlease go to:\nSystem Settings → Privacy & Security → Accessibility\n\nClick the \"+\" button to add DockMinimizer to the authorized list." = "DockMinimizer requires accessibility permission to monitor and operate windows of other applications.\n\nPlease go to:\nSystem Settings → Privacy & Security → Accessibility\n\nClick the \"+\" button to add DockMinimizer to the authorized list.";

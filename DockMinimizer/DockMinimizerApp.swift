@@ -1,9 +1,37 @@
 import SwiftUI
+import ServiceManagement
+
+class LaunchAtLoginManager: ObservableObject {
+    static let shared = LaunchAtLoginManager()
+
+    @Published var isEnabled: Bool {
+        didSet {
+            setEnabled(isEnabled)
+        }
+    }
+
+    private init() {
+        isEnabled = SMAppService.mainApp.status == .enabled
+    }
+
+    private func setEnabled(_ enabled: Bool) {
+        do {
+            if enabled {
+                try SMAppService.mainApp.register()
+            } else {
+                try SMAppService.mainApp.unregister()
+            }
+        } catch {
+            print("Failed to \(enabled ? "enable" : "disable") launch at login: \(error)")
+        }
+    }
+}
 
 struct SettingsView: View {
     @AppStorage("loggingEnabled") private var loggingEnabled = false
     @State private var hasPermission = false
     @StateObject private var localizationManager = LocalizationManager.shared
+    @StateObject private var launchAtLoginManager = LaunchAtLoginManager.shared
     @State private var permissionCheckTimer: Timer?
 
     var body: some View {
@@ -38,6 +66,13 @@ struct SettingsView: View {
                 }
                 .frame(width: 120)
             }
+
+            // Launch at Login
+            Toggle(L10n.launchAtLogin, isOn: Binding(
+                get: { launchAtLoginManager.isEnabled },
+                set: { launchAtLoginManager.isEnabled = $0 }
+            ))
+            .help(L10n.launchAtLoginHelp)
 
             Divider()
 

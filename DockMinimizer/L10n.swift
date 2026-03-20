@@ -91,6 +91,10 @@ enum L10n {
     static var quitApp: String { lm.localizedString(key: "Quit App", comment: "") }
     static var enableLoggingHelp: String { lm.localizedString(key: "Enable logging to record app operations for troubleshooting", comment: "") }
 
+    // Launch at Login
+    static var launchAtLogin: String { lm.localizedString(key: "Launch at Login", comment: "") }
+    static var launchAtLoginHelp: String { lm.localizedString(key: "Automatically start DockMinimizer when you log in", comment: "") }
+
     // Permission Alerts
     static var permissionRequiredTitle: String { lm.localizedString(key: "Accessibility Permission Required", comment: "") }
     static var permissionRequiredMessage: String { lm.localizedString(key: "DockMinimizer requires accessibility permission to monitor and operate windows of other applications.\n\nPlease go to:\nSystem Settings → Privacy & Security → Accessibility\n\nClick the \"+\" button to add DockMinimizer to the authorized list.", comment: "") }

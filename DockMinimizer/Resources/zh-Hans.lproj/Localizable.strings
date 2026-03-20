@@ -30,6 +30,10 @@
 "Quit App" = "退出应用";
 "Enable logging to record app operations for troubleshooting" = "开启后记录应用操作日志，方便排查问题";
 
+/* Launch at Login */
+"Launch at Login" = "开机自启";
+"Automatically start DockMinimizer when you log in" = "登录时自动启动 DockMinimizer";
+
 /* Permission Alerts */
 "Accessibility Permission Required" = "需要辅助功能权限";
 "DockMinimizer requires accessibility permission to monitor and operate windows of other applications.\n\nPlease go to:\nSystem Settings → Privacy & Security → Accessibility\n\nClick the \"+\" button to add DockMinimizer to the authorized list." = "DockMinimizer 需要辅助功能权限才能监控和操作其他应用的窗口。\n\n请前往：\n系统设置 → 隐私与安全性 → 辅助功能\n\n点击 \"+\" 按钮添加 DockMinimizer 到授权列表。";
