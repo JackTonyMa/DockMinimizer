@@ -1,9 +1,11 @@
 import Cocoa
+import SwiftUI
 
 class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem?
     private var dockMonitor: DockMonitor?
     private var permissionAlertShown = false
+    private var settingsWindow: NSWindow?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         LogService.shared.log(category: "AppDelegate", message: "应用启动: \(Bundle.main.bundlePath)")
@@ -71,6 +73,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         let menu = NSMenu()
 
+        let settingsItem = NSMenuItem(title: "设置...", action: #selector(openSettings), keyEquivalent: "")
+        settingsItem.target = self
+        menu.addItem(settingsItem)
+
+        menu.addItem(NSMenuItem.separator())
+
         let statusMenuItem = NSMenuItem(title: "DockMinimizer 运行中", action: nil, keyEquivalent: "")
         statusMenuItem.isEnabled = false
         menu.addItem(statusMenuItem)
@@ -113,6 +121,28 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func openLogFolder() {
         LogService.shared.openLogFolder()
+    }
+
+    @objc private func openSettings() {
+        NSApplication.shared.activate(ignoringOtherApps: true)
+
+        if let window = settingsWindow, window.isVisible {
+            window.makeKeyAndOrderFront(nil)
+            return
+        }
+
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 320, height: 400),
+            styleMask: [.titled, .closable],
+            backing: .buffered,
+            defer: false
+        )
+        window.title = "DockMinimizer 设置"
+        window.center()
+        window.contentView = NSHostingView(rootView: SettingsView())
+        window.isReleasedWhenClosed = false
+        window.makeKeyAndOrderFront(nil)
+        settingsWindow = window
     }
 
     @objc private func quitApp() {
