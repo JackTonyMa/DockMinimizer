@@ -2,9 +2,9 @@ import Cocoa
 import SwiftUI
 import Combine
 
-class AppDelegate: NSObject, NSApplicationDelegate {
+class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     var statusItem: NSStatusItem?
-    private var dockMonitor: DockMonitor?
+    var dockMonitor: DockMonitor?
     private var permissionAlertShown = false
     private var settingsWindow: NSWindow?
     private var cancellables = Set<AnyCancellable>()
@@ -31,7 +31,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         checkAccessibilityPermission()
 
         // Start monitoring Dock clicks
-        dockMonitor = DockMonitor()
+        dockMonitor = DockMonitor.shared
     }
 
     private func checkAccessibilityPermission() {
@@ -137,21 +137,25 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc private func openSettings() {
         NSApplication.shared.activate(ignoringOtherApps: true)
 
-        if let window = settingsWindow, window.isVisible {
+        // 通过窗口标题查找已存在的设置窗口
+        let settingsTitle = L10n.settingsWindowTitle
+        if let window = NSApplication.shared.windows.first(where: { $0.title == settingsTitle }) {
             window.makeKeyAndOrderFront(nil)
             return
         }
 
+        // 如果找不到，创建新窗口
         let window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: 320, height: 420),
             styleMask: [.titled, .closable],
             backing: .buffered,
             defer: false
         )
-        window.title = L10n.settingsWindowTitle
+        window.title = settingsTitle
         window.center()
         window.contentView = NSHostingView(rootView: SettingsView())
         window.isReleasedWhenClosed = false
+        window.delegate = self
         window.makeKeyAndOrderFront(nil)
         settingsWindow = window
     }
@@ -162,5 +166,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         return false
+    }
+
+    // MARK: - NSWindowDelegate
+
+    func windowWillClose(_ notification: Notification) {
+        if let window = notification.object as? NSWindow, window == settingsWindow {
+            // 窗口关闭时不清除引用，下次打开时可以复用
+            // 因为 isReleasedWhenClosed = false，窗口对象仍然存在
+        }
     }
 }

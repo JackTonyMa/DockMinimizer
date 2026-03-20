@@ -2,8 +2,9 @@ import Cocoa
 import Carbon
 import UserNotifications
 
-/// 快速检测 Accessibility API 是否真正可用（比 AXIsProcessTrusted 更可靠）
-private func isAccessibilityActuallyWorking() -> Bool {
+/// 检测 Accessibility API 是否真正可用
+func isAccessibilityActuallyWorking() -> Bool {
+    guard AXIsProcessTrusted() else { return false }
     guard let dockApp = NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.dock").first else {
         return false
     }
@@ -35,10 +36,10 @@ private func globalEventCallback(proxy: CGEventTapProxy, type: CGEventType, even
         return Unmanaged.passRetained(event)
     }
 
-    // 用实际的 Accessibility API 调用来检测权限是否真正有效
-    // 这比 AXIsProcessTrusted() 更可靠，因为它会立即反映权限被删除的状态
-    if !isAccessibilityActuallyWorking() {
-        LogService.shared.log(level: .warning, category: "DockMonitor", message: "[回调] Accessibility API 失效，立即停止并返回事件")
+    // 使用轻量的权限检查，避免在回调中执行可能阻塞的 API 调用
+    // AXIsProcessTrusted() 是非阻塞的，而 isAccessibilityActuallyWorking() 可能会阻塞
+    if !AXIsProcessTrusted() {
+        LogService.shared.log(level: .warning, category: "DockMonitor", message: "[回调] 权限已撤销，立即停止并返回事件")
         monitor.handleTapDisabled()
         return Unmanaged.passRetained(event)
     }
@@ -53,7 +54,9 @@ private func globalEventCallback(proxy: CGEventTapProxy, type: CGEventType, even
 }
 
 /// Monitors Dock icon clicks
-class DockMonitor {
+class DockMonitor: ObservableObject {
+    static let shared = DockMonitor()
+
     private var currentFrontmostPID: pid_t?
     private var currentFrontmostName: String?
     var eventTap: CFMachPort?  // internal 访问级别，供回调函数使用
@@ -61,7 +64,10 @@ class DockMonitor {
     private var permissionCheckTimer: Timer?
     private var lastPermissionState: Bool = false  // 记录上次权限状态，用于检测变化
 
-    init() {
+    /// 权限和功能是否完全可用
+    @Published var isFullyFunctional: Bool = false
+
+    private init() {
         if let frontApp = NSWorkspace.shared.frontmostApplication {
             currentFrontmostPID = frontApp.processIdentifier
             currentFrontmostName = frontApp.localizedName
@@ -86,6 +92,8 @@ class DockMonitor {
             self?.checkPermissionState()
         }
         lastPermissionState = apiWorking
+        // 立即检查一次权限状态，确保 isFullyFunctional 值正确
+        checkPermissionState()
         LogService.shared.log(category: "DockMonitor", message: "[定时器] 已启动，间隔 \(interval) 秒，API可用: \(apiWorking ? "是" : "否")")
     }
 
@@ -94,6 +102,9 @@ class DockMonitor {
         let apiWorking = isAccessibilityActuallyWorking()
         let trusted = AXIsProcessTrusted()
         LogService.shared.log(category: "DockMonitor", message: "[定时器检查] AXIsProcessTrusted: \(trusted ? "是" : "否"), API实际可用: \(apiWorking ? "是" : "否"), eventTap: \(eventTap != nil ? "存在" : "不存在")")
+
+        // 更新完整功能状态
+        isFullyFunctional = trusted && apiWorking && (eventTap != nil)
 
         // 检测权限状态变化
         if apiWorking != lastPermissionState {

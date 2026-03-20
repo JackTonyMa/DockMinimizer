@@ -1,4 +1,5 @@
 import SwiftUI
+import Cocoa
 import ServiceManagement
 
 class LaunchAtLoginManager: ObservableObject {
@@ -29,10 +30,9 @@ class LaunchAtLoginManager: ObservableObject {
 
 struct SettingsView: View {
     @AppStorage("loggingEnabled") private var loggingEnabled = false
-    @State private var hasPermission = false
     @StateObject private var localizationManager = LocalizationManager.shared
     @StateObject private var launchAtLoginManager = LaunchAtLoginManager.shared
-    @State private var permissionCheckTimer: Timer?
+    @StateObject private var dockMonitor = DockMonitor.shared
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -78,7 +78,7 @@ struct SettingsView: View {
 
             // 辅助功能权限状态
             HStack {
-                if hasPermission {
+                if dockMonitor.isFullyFunctional {
                     Label(L10n.permissionGranted, systemImage: "checkmark.circle.fill")
                         .foregroundColor(.green)
                 } else {
@@ -88,15 +88,12 @@ struct SettingsView: View {
                 Spacer()
             }
 
-            if !hasPermission {
+            if !dockMonitor.isFullyFunctional {
                 HStack {
                     Button(L10n.openSystemSettings) {
                         if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility") {
                             NSWorkspace.shared.open(url)
                         }
-                    }
-                    Button(L10n.refreshStatus) {
-                        refreshPermission()
                     }
                     Spacer()
                 }
@@ -145,43 +142,7 @@ struct SettingsView: View {
         }
         .padding()
         .frame(width: 320)
-        .onAppear {
-            refreshPermission()
-            startAutoRefresh()
-        }
-        .onDisappear {
-            stopAutoRefresh()
-        }
     }
-
-    private func refreshPermission() {
-        // 使用实际 API 检测，比 AXIsProcessTrusted 更可靠
-        hasPermission = isAccessibilityActuallyWorking()
-    }
-
-    private func startAutoRefresh() {
-        permissionCheckTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
-            DispatchQueue.main.async {
-                refreshPermission()
-            }
-        }
-    }
-
-    private func stopAutoRefresh() {
-        permissionCheckTimer?.invalidate()
-        permissionCheckTimer = nil
-    }
-}
-
-/// 快速检测 Accessibility API 是否真正可用
-private func isAccessibilityActuallyWorking() -> Bool {
-    guard let dockApp = NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.dock").first else {
-        return false
-    }
-    let dockRef = AXUIElementCreateApplication(dockApp.processIdentifier)
-    var value: AnyObject?
-    let result = AXUIElementCopyAttributeValue(dockRef, kAXChildrenAttribute as CFString, &value)
-    return result == .success
 }
 
 #Preview {
@@ -198,10 +159,10 @@ struct DockMinimizerApp: App {
         }
         .windowStyle(.automatic)
         .defaultPosition(.center)
-        .defaultSize(width: 320, height: 320)
-
-        Settings {
-            SettingsView()
+        .defaultSize(width: 320, height: 420)
+        .commands {
+            // 隐藏默认的 Window 菜单项
+            CommandGroup(replacing: .windowArrangement) { }
         }
     }
 }
