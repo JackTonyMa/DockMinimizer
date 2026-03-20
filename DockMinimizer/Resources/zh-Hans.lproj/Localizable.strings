@@ -47,3 +47,9 @@
 
 /* Status Bar Tooltip */
 "DockMinimizer - Click Dock icon to minimize windows" = "DockMinimizer - 点击 Dock 图标最小化窗口";
+
+/* Permission Notifications */
+"Permission Granted" = "权限已授权";
+"Accessibility permission has been granted, DockMinimizer is now active." = "辅助功能权限已授权，DockMinimizer 现已激活。";
+"Permission Revoked" = "权限已撤销";
+"Accessibility permission has been revoked, DockMinimizer has stopped working." = "辅助功能权限已撤销，DockMinimizer 已停止工作。";

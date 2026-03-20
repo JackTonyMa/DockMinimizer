@@ -152,19 +152,14 @@ struct SettingsView: View {
         .onDisappear {
             stopAutoRefresh()
         }
-        .onChange(of: hasPermission) { newValue in
-            if newValue {
-                stopAutoRefresh()
-            }
-        }
     }
 
     private func refreshPermission() {
-        hasPermission = AXIsProcessTrusted()
+        // 使用实际 API 检测，比 AXIsProcessTrusted 更可靠
+        hasPermission = isAccessibilityActuallyWorking()
     }
 
     private func startAutoRefresh() {
-        guard !hasPermission else { return }
         permissionCheckTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
             DispatchQueue.main.async {
                 refreshPermission()
@@ -176,6 +171,17 @@ struct SettingsView: View {
         permissionCheckTimer?.invalidate()
         permissionCheckTimer = nil
     }
+}
+
+/// 快速检测 Accessibility API 是否真正可用
+private func isAccessibilityActuallyWorking() -> Bool {
+    guard let dockApp = NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.dock").first else {
+        return false
+    }
+    let dockRef = AXUIElementCreateApplication(dockApp.processIdentifier)
+    var value: AnyObject?
+    let result = AXUIElementCopyAttributeValue(dockRef, kAXChildrenAttribute as CFString, &value)
+    return result == .success
 }
 
 #Preview {

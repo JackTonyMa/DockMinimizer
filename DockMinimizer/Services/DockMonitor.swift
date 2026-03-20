@@ -1,5 +1,17 @@
 import Cocoa
 import Carbon
+import UserNotifications
+
+/// 快速检测 Accessibility API 是否真正可用（比 AXIsProcessTrusted 更可靠）
+private func isAccessibilityActuallyWorking() -> Bool {
+    guard let dockApp = NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.dock").first else {
+        return false
+    }
+    let dockRef = AXUIElementCreateApplication(dockApp.processIdentifier)
+    var value: AnyObject?
+    let result = AXUIElementCopyAttributeValue(dockRef, kAXChildrenAttribute as CFString, &value)
+    return result == .success
+}
 
 // Global callback function for CGEventTap
 private func globalEventCallback(proxy: CGEventTapProxy, type: CGEventType, event: CGEvent, userInfo: UnsafeMutableRawPointer?) -> Unmanaged<CGEvent>? {
@@ -8,8 +20,35 @@ private func globalEventCallback(proxy: CGEventTapProxy, type: CGEventType, even
     }
 
     let monitor = Unmanaged<DockMonitor>.fromOpaque(userInfo).takeUnretainedValue()
-    let consumed = monitor.handleEvent(proxy: proxy, type: type, event: event)
 
+    // 处理 tap 被禁用的事件（权限被撤销或超时）
+    if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
+        LogService.shared.log(level: .warning, category: "DockMonitor", message: "[回调] 检测到 tap 禁用事件")
+        monitor.handleTapDisabled()
+        return Unmanaged.passRetained(event)
+    }
+
+    // 检查 tap 是否仍然有效
+    if let tap = monitor.eventTap, !CGEvent.tapIsEnabled(tap: tap) {
+        LogService.shared.log(level: .warning, category: "DockMonitor", message: "[回调] tap 已被禁用，立即停止并返回事件")
+        monitor.handleTapDisabled()
+        return Unmanaged.passRetained(event)
+    }
+
+    // 用实际的 Accessibility API 调用来检测权限是否真正有效
+    // 这比 AXIsProcessTrusted() 更可靠，因为它会立即反映权限被删除的状态
+    if !isAccessibilityActuallyWorking() {
+        LogService.shared.log(level: .warning, category: "DockMonitor", message: "[回调] Accessibility API 失效，立即停止并返回事件")
+        monitor.handleTapDisabled()
+        return Unmanaged.passRetained(event)
+    }
+
+    // 仅记录鼠标按下事件
+    if type == .leftMouseDown {
+        LogService.shared.log(category: "DockMonitor", message: "[回调] 收到事件: leftMouseDown")
+    }
+
+    let consumed = monitor.handleEvent(proxy: proxy, type: type, event: event)
     return consumed ? nil : Unmanaged.passRetained(event)
 }
 
@@ -17,9 +56,10 @@ private func globalEventCallback(proxy: CGEventTapProxy, type: CGEventType, even
 class DockMonitor {
     private var currentFrontmostPID: pid_t?
     private var currentFrontmostName: String?
-    private var eventTap: CFMachPort?
+    var eventTap: CFMachPort?  // internal 访问级别，供回调函数使用
     private var runLoopSource: CFRunLoopSource?
     private var permissionCheckTimer: Timer?
+    private var lastPermissionState: Bool = false  // 记录上次权限状态，用于检测变化
 
     init() {
         if let frontApp = NSWorkspace.shared.frontmostApplication {
@@ -34,25 +74,98 @@ class DockMonitor {
 
     deinit {
         permissionCheckTimer?.invalidate()
-        if let source = runLoopSource {
-            CFRunLoopRemoveSource(CFRunLoopGetCurrent(), source, .commonModes)
-        }
-        if let tap = eventTap {
-            CGEvent.tapEnable(tap: tap, enable: false)
-        }
+        stopEventTap()
         NSWorkspace.shared.notificationCenter.removeObserver(self)
     }
 
     private func startPermissionCheckTimer() {
-        permissionCheckTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
-            self?.checkAndStartEventTap()
+        // 根据当前权限状态决定检查间隔
+        let apiWorking = isAccessibilityActuallyWorking()
+        let interval: TimeInterval = apiWorking ? 5.0 : 1.0
+        permissionCheckTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] _ in
+            self?.checkPermissionState()
+        }
+        lastPermissionState = apiWorking
+        LogService.shared.log(category: "DockMonitor", message: "[定时器] 已启动，间隔 \(interval) 秒，API可用: \(apiWorking ? "是" : "否")")
+    }
+
+    private func checkPermissionState() {
+        // 用实际 API 检测权限是否真正有效
+        let apiWorking = isAccessibilityActuallyWorking()
+        let trusted = AXIsProcessTrusted()
+        LogService.shared.log(category: "DockMonitor", message: "[定时器检查] AXIsProcessTrusted: \(trusted ? "是" : "否"), API实际可用: \(apiWorking ? "是" : "否"), eventTap: \(eventTap != nil ? "存在" : "不存在")")
+
+        // 检测权限状态变化
+        if apiWorking != lastPermissionState {
+            if apiWorking {
+                sendNotification(title: L10n.permissionGrantedNotificationTitle, body: L10n.permissionGrantedNotificationBody)
+            } else {
+                sendNotification(title: L10n.permissionRevoked, body: L10n.permissionRevokedMessage)
+            }
+            lastPermissionState = apiWorking
+            adjustTimerInterval()
+        }
+
+        if apiWorking && eventTap == nil {
+            LogService.shared.log(category: "DockMonitor", message: "[定时器检查] API 可用，尝试启动 eventTap")
+            tryStartEventTap()
+        } else if !apiWorking && eventTap != nil {
+            // 检测到权限撤销，立即停止 tap
+            LogService.shared.log(level: .warning, category: "DockMonitor", message: "[定时器检查] 检测到 API 不可用，立即停止 eventTap")
+            stopEventTap()
         }
     }
 
-    private func checkAndStartEventTap() {
-        let trusted = AXIsProcessTrusted()
-        if trusted && eventTap == nil {
-            tryStartEventTap()
+    private func sendNotification(title: String, body: String) {
+        let center = UNUserNotificationCenter.current()
+        center.requestAuthorization(options: [.alert, .sound]) { granted, error in
+            if granted {
+                let content = UNMutableNotificationContent()
+                content.title = title
+                content.body = body
+                content.sound = .default
+
+                let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
+                center.add(request)
+            }
+        }
+    }
+
+    private func adjustTimerInterval() {
+        permissionCheckTimer?.invalidate()
+        let interval: TimeInterval = lastPermissionState ? 5.0 : 1.0
+        permissionCheckTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] _ in
+            self?.checkPermissionState()
+        }
+        LogService.shared.log(category: "DockMonitor", message: "[定时器] 间隔调整为 \(interval) 秒")
+    }
+
+    private func stopEventTap() {
+        LogService.shared.log(category: "DockMonitor", message: "[stopEventTap] 开始停止，eventTap: \(eventTap != nil ? "存在" : "不存在")")
+        guard let tap = eventTap else {
+            LogService.shared.log(category: "DockMonitor", message: "[stopEventTap] eventTap 为空，跳过")
+            return
+        }
+
+        CGEvent.tapEnable(tap: tap, enable: false)
+        LogService.shared.log(category: "DockMonitor", message: "[stopEventTap] 已禁用 tap")
+
+        if let source = runLoopSource {
+            CFRunLoopRemoveSource(CFRunLoopGetCurrent(), source, .commonModes)
+            runLoopSource = nil
+            LogService.shared.log(category: "DockMonitor", message: "[stopEventTap] 已移除 runLoopSource")
+        }
+
+        eventTap = nil
+        LogService.shared.log(category: "DockMonitor", message: "[stopEventTap] 完成")
+    }
+
+    /// 当 CGEventTap 被系统禁用时调用（权限被撤销或超时）
+    func handleTapDisabled() {
+        LogService.shared.log(level: .warning, category: "DockMonitor", message: "[handleTapDisabled] 被调用")
+        DispatchQueue.main.async { [weak self] in
+            LogService.shared.log(category: "DockMonitor", message: "[handleTapDisabled] 主线程执行 stopEventTap")
+            self?.stopEventTap()
         }
     }
 
@@ -75,15 +188,14 @@ class DockMonitor {
     }
 
     private func tryStartEventTap() {
-        let trusted = AXIsProcessTrusted()
-
-        guard trusted else { return }
+        guard isAccessibilityActuallyWorking() else { return }
 
         if eventTap != nil { return }
         startEventTap()
     }
 
     private func startEventTap() {
+        LogService.shared.log(category: "DockMonitor", message: "[startEventTap] 开始创建 eventTap")
         let eventMask = (1 << CGEventType.leftMouseDown.rawValue)
         let selfPointer = Unmanaged.passUnretained(self).toOpaque()
 
@@ -95,7 +207,7 @@ class DockMonitor {
             callback: globalEventCallback,
             userInfo: selfPointer
         ) else {
-            LogService.shared.log(level: .error, category: "DockMonitor", message: "无法创建 CGEventTap")
+            LogService.shared.log(level: .error, category: "DockMonitor", message: "[startEventTap] 无法创建 CGEventTap")
             return
         }
 
@@ -105,6 +217,7 @@ class DockMonitor {
         if let source = runLoopSource {
             CFRunLoopAddSource(CFRunLoopGetCurrent(), source, .commonModes)
             CGEvent.tapEnable(tap: tap, enable: true)
+            LogService.shared.log(category: "DockMonitor", message: "[startEventTap] eventTap 创建成功并已启用")
         }
     }
 

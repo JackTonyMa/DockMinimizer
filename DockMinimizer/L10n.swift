@@ -107,4 +107,10 @@ enum L10n {
 
     // Status Bar Tooltip
     static var statusBarTooltip: String { lm.localizedString(key: "DockMinimizer - Click Dock icon to minimize windows", comment: "") }
+
+    // Permission Notifications
+    static var permissionGrantedNotificationTitle: String { lm.localizedString(key: "Permission Granted", comment: "") }
+    static var permissionGrantedNotificationBody: String { lm.localizedString(key: "Accessibility permission has been granted, DockMinimizer is now active.", comment: "") }
+    static var permissionRevoked: String { lm.localizedString(key: "Permission Revoked", comment: "") }
+    static var permissionRevokedMessage: String { lm.localizedString(key: "Accessibility permission has been revoked, DockMinimizer has stopped working.", comment: "") }
 }
