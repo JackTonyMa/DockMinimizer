@@ -1,0 +1,45 @@
+/* Language Settings */
+"Language" = "语言";
+"Follow System" = "跟随系统";
+
+/* Menu Items */
+"Settings..." = "设置...";
+"DockMinimizer Running" = "DockMinimizer 运行中";
+"Check Permissions" = "检查权限";
+"View Logs" = "查看日志";
+"Quit (⌘Q)" = "退出 (⌘Q)";
+
+/* Settings Window */
+"DockMinimizer Settings" = "DockMinimizer 设置";
+"Click Dock icon to minimize windows" = "点击 Dock 图标最小化窗口";
+
+/* Permission Status */
+"Accessibility Permission Granted" = "辅助功能权限已授权";
+"Accessibility Permission Not Granted" = "辅助功能权限未授权";
+"Open System Settings" = "打开系统设置";
+"Refresh Status" = "刷新状态";
+
+/* App Status */
+"Enabled" = "已启用";
+"App is running in the background. Click the frontmost app's Dock icon to minimize its windows." = "应用正在后台运行，点击 Dock 中的前台应用图标即可最小化其窗口。";
+
+/* Logging */
+"Enable Logging" = "启用日志记录";
+"Log location: ~/Library/Logs/DockMinimizer/" = "日志位置: ~/Library/Logs/DockMinimizer/";
+"View Logs" = "查看日志";
+"Quit App" = "退出应用";
+"Enable logging to record app operations for troubleshooting" = "开启后记录应用操作日志，方便排查问题";
+
+/* Permission Alerts */
+"Accessibility Permission Required" = "需要辅助功能权限";
+"DockMinimizer requires accessibility permission to monitor and operate windows of other applications.\n\nPlease go to:\nSystem Settings → Privacy & Security → Accessibility\n\nClick the \"+\" button to add DockMinimizer to the authorized list." = "DockMinimizer 需要辅助功能权限才能监控和操作其他应用的窗口。\n\n请前往：\n系统设置 → 隐私与安全性 → 辅助功能\n\n点击 \"+\" 按钮添加 DockMinimizer 到授权列表。";
+"Open System Settings" = "打开系统设置";
+"Later" = "稍后设置";
+
+/* Permission Status Dialog */
+"Permission Granted" = "权限已授权";
+"DockMinimizer has been granted accessibility permission and can work properly." = "DockMinimizer 已获得辅助功能权限，可以正常工作。";
+"OK" = "确定";
+
+/* Status Bar Tooltip */
+"DockMinimizer - Click Dock icon to minimize windows" = "DockMinimizer - 点击 Dock 图标最小化窗口";

@@ -1,0 +1,45 @@
+/* Language Settings */
+"Language" = "Language";
+"Follow System" = "Follow System";
+
+/* Menu Items */
+"Settings..." = "Settings...";
+"DockMinimizer Running" = "DockMinimizer Running";
+"Check Permissions" = "Check Permissions";
+"View Logs" = "View Logs";
+"Quit (⌘Q)" = "Quit (⌘Q)";
+
+/* Settings Window */
+"DockMinimizer Settings" = "DockMinimizer Settings";
+"Click Dock icon to minimize windows" = "Click Dock icon to minimize windows";
+
+/* Permission Status */
+"Accessibility Permission Granted" = "Accessibility Permission Granted";
+"Accessibility Permission Not Granted" = "Accessibility Permission Not Granted";
+"Open System Settings" = "Open System Settings";
+"Refresh Status" = "Refresh Status";
+
+/* App Status */
+"Enabled" = "Enabled";
+"App is running in the background. Click the frontmost app's Dock icon to minimize its windows." = "App is running in the background. Click the frontmost app's Dock icon to minimize its windows.";
+
+/* Logging */
+"Enable Logging" = "Enable Logging";
+"Log location: ~/Library/Logs/DockMinimizer/" = "Log location: ~/Library/Logs/DockMinimizer/";
+"View Logs" = "View Logs";
+"Quit App" = "Quit App";
+"Enable logging to record app operations for troubleshooting" = "Enable logging to record app operations for troubleshooting";
+
+/* Permission Alerts */
+"Accessibility Permission Required" = "Accessibility Permission Required";
+"DockMinimizer requires accessibility permission to monitor and operate windows of other applications.\n\nPlease go to:\nSystem Settings → Privacy & Security → Accessibility\n\nClick the \"+\" button to add DockMinimizer to the authorized list." = "DockMinimizer requires accessibility permission to monitor and operate windows of other applications.\n\nPlease go to:\nSystem Settings → Privacy & Security → Accessibility\n\nClick the \"+\" button to add DockMinimizer to the authorized list.";
+"Open System Settings" = "Open System Settings";
+"Later" = "Later";
+
+/* Permission Status Dialog */
+"Permission Granted" = "Permission Granted";
+"DockMinimizer has been granted accessibility permission and can work properly." = "DockMinimizer has been granted accessibility permission and can work properly.";
+"OK" = "OK";
+
+/* Status Bar Tooltip */
+"DockMinimizer - Click Dock icon to minimize windows" = "DockMinimizer - Click Dock icon to minimize windows";

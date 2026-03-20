@@ -3,6 +3,7 @@ import SwiftUI
 struct SettingsView: View {
     @AppStorage("loggingEnabled") private var loggingEnabled = false
     @State private var hasPermission = false
+    @StateObject private var localizationManager = LocalizationManager.shared
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -14,7 +15,7 @@ struct SettingsView: View {
                 VStack(alignment: .leading) {
                     Text("DockMinimizer")
                         .font(.headline)
-                    Text("点击 Dock 图标最小化窗口")
+                    Text(L10n.settingsSubtitle)
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -22,13 +23,30 @@ struct SettingsView: View {
 
             Divider()
 
+            // Language Setting
+            HStack {
+                Text(L10n.language)
+                Spacer()
+                Picker("", selection: Binding(
+                    get: { localizationManager.currentLanguage },
+                    set: { localizationManager.setLanguage($0) }
+                )) {
+                    ForEach(AppLanguage.allCases, id: \.self) { lang in
+                        Text(lang.displayName).tag(lang)
+                    }
+                }
+                .frame(width: 120)
+            }
+
+            Divider()
+
             // 辅助功能权限状态
             HStack {
                 if hasPermission {
-                    Label("辅助功能权限已授权", systemImage: "checkmark.circle.fill")
+                    Label(L10n.permissionGranted, systemImage: "checkmark.circle.fill")
                         .foregroundColor(.green)
                 } else {
-                    Label("辅助功能权限未授权", systemImage: "xmark.circle.fill")
+                    Label(L10n.permissionNotGranted, systemImage: "xmark.circle.fill")
                         .foregroundColor(.red)
                 }
                 Spacer()
@@ -36,12 +54,12 @@ struct SettingsView: View {
 
             if !hasPermission {
                 HStack {
-                    Button("打开系统设置") {
+                    Button(L10n.openSystemSettings) {
                         if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility") {
                             NSWorkspace.shared.open(url)
                         }
                     }
-                    Button("刷新状态") {
+                    Button(L10n.refreshStatus) {
                         refreshPermission()
                     }
                     Spacer()
@@ -51,10 +69,10 @@ struct SettingsView: View {
             Divider()
 
             VStack(alignment: .leading, spacing: 8) {
-                Label("已启用", systemImage: "checkmark.circle.fill")
+                Label(L10n.enabled, systemImage: "checkmark.circle.fill")
                     .foregroundColor(.green)
 
-                Text("应用正在后台运行，点击 Dock 中的前台应用图标即可最小化其窗口。")
+                Text(L10n.runningDescription)
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -62,12 +80,12 @@ struct SettingsView: View {
 
             Divider()
 
-            Toggle("启用日志记录", isOn: $loggingEnabled)
-                .help("开启后记录应用操作日志，方便排查问题")
+            Toggle(L10n.enableLogging, isOn: $loggingEnabled)
+                .help(L10n.enableLoggingHelp)
 
             if loggingEnabled {
                 HStack {
-                    Text("日志位置: ~/Library/Logs/DockMinimizer/")
+                    Text(L10n.logLocation)
                         .font(.caption)
                         .foregroundColor(.secondary)
                     Spacer()
@@ -78,12 +96,12 @@ struct SettingsView: View {
 
             HStack {
                 if loggingEnabled {
-                    Button("查看日志") {
+                    Button(L10n.viewLogs) {
                         LogService.shared.openLogFolder()
                     }
                 }
                 Spacer()
-                Button("退出应用") {
+                Button(L10n.quitApp) {
                     NSApplication.shared.terminate(nil)
                 }
                 .keyboardShortcut(.cancelAction)

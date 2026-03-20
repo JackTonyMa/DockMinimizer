@@ -47,10 +47,16 @@ DockMinimizer is a lightweight macOS background utility that brings Windows-styl
 
 ### Status Bar Menu
 
+- **Settings...** — Open settings window (language, logging, etc.)
 - **DockMinimizer Running** — App status indicator
 - **Check Permissions** — Verify accessibility access
 - **View Logs** — Open log folder in Finder
 - **Quit (⌘Q)** — Exit the application
+
+### Settings
+
+- **Language** — Switch between English, 简体中文, or follow system
+- **Logging** — Enable/disable operation logging for troubleshooting
 
 ### Technical Details
 
@@ -84,6 +90,62 @@ DockMinimizer/
 ### License
 
 MIT License
+
+---
+
+## Contributing Translations / 贡献翻译
+
+We welcome community contributions for translations! Here's how to add a new language:
+
+### Supported Languages / 支持的语言
+
+| Language | Code | Status |
+|----------|------|--------|
+| English | `en` | ✅ Complete |
+| 简体中文 | `zh-Hans` | ✅ Complete |
+
+### How to Add a New Language / 如何添加新语言
+
+1. Navigate to `DockMinimizer/Resources/` directory
+2. Create a new folder named `{language-code}.lproj` (e.g., `ja.lproj` for Japanese)
+3. Copy `en.lproj/Localizable.strings` to your new folder
+4. Translate the strings in the copied file
+5. Submit a pull request!
+
+### Example / 示例
+
+For Japanese (`ja`):
+```bash
+mkdir -p DockMinimizer/Resources/ja.lproj
+cp DockMinimizer/Resources/en.lproj/Localizable.strings DockMinimizer/Resources/ja.lproj/
+# Edit the .strings file with Japanese translations
+```
+
+### File Structure / 文件结构
+
+```
+DockMinimizer/Resources/
+├── en.lproj/
+│   └── Localizable.strings    # English
+├── zh-Hans.lproj/
+│   └── Localizable.strings    # Simplified Chinese
+└── {your-lang}.lproj/
+    └── Localizable.strings    # Your translation
+```
+
+### String Keys Reference / 字符串键参考
+
+| Key | Description |
+|-----|-------------|
+| `Settings...` | Menu item to open settings |
+| `DockMinimizer Running` | Status indicator in menu |
+| `Check Permissions` | Menu item to check accessibility |
+| `View Logs` | Menu item to open log folder |
+| `Quit (⌘Q)` | Menu item to quit app |
+| `Accessibility Permission Granted` | Permission status label |
+| `Enable Logging` | Toggle for logging feature |
+
+---
 
 ---
 
@@ -128,10 +190,16 @@ DockMinimizer 是一款轻量级 macOS 后台工具，为 macOS 带来 Windows �
 
 ### 状态栏菜单
 
+- **设置...** — 打开设置窗口（语言、日志等）
 - **DockMinimizer 运行中** — 应用状态指示
 - **检查权限** — 验证辅助功能访问权限
 - **查看日志** — 在访达中打开日志文件夹
 - **退出 (⌘Q)** — 退出应用
+
+### 设置
+
+- **语言** — 切换 English、简体中文 或跟随系统
+- **日志** — 启用/禁用操作日志便于排查问题
 
 ### 技术细节
 
