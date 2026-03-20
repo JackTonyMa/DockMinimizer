@@ -32,6 +32,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
         // Start monitoring Dock clicks
         dockMonitor = DockMonitor.shared
+
+        // 启动时打开设置窗口
+        openSettings()
     }
 
     private func checkAccessibilityPermission() {
@@ -137,14 +140,21 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     @objc private func openSettings() {
         NSApplication.shared.activate(ignoringOtherApps: true)
 
-        // 通过窗口标题查找已存在的设置窗口
-        let settingsTitle = L10n.settingsWindowTitle
-        if let window = NSApplication.shared.windows.first(where: { $0.title == settingsTitle }) {
+        // 如果窗口已存在，直接激活
+        if let window = settingsWindow {
             window.makeKeyAndOrderFront(nil)
             return
         }
 
-        // 如果找不到，创建新窗口
+        // 通过窗口标题查找是否已有 SwiftUI 创建的窗口
+        let settingsTitle = L10n.settingsWindowTitle
+        if let existingWindow = NSApplication.shared.windows.first(where: { $0.title == settingsTitle }) {
+            settingsWindow = existingWindow
+            existingWindow.makeKeyAndOrderFront(nil)
+            return
+        }
+
+        // 创建新窗口
         let window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: 320, height: 420),
             styleMask: [.titled, .closable],

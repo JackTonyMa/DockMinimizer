@@ -149,12 +149,14 @@ struct SettingsView: View {
     SettingsView()
 }
 
+// MARK: - App
+
 @main
 struct DockMinimizerApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     var body: some Scene {
-        WindowGroup {
+        WindowGroup(L10n.settingsWindowTitle, id: "settings") {
             SettingsView()
         }
         .windowStyle(.automatic)
@@ -164,5 +166,6 @@ struct DockMinimizerApp: App {
             // 隐藏默认的 Window 菜单项
             CommandGroup(replacing: .windowArrangement) { }
         }
+        .defaultLaunchBehavior(.suppressed)
     }
 }
