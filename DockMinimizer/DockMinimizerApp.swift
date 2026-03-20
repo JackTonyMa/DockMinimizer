@@ -4,6 +4,7 @@ struct SettingsView: View {
     @AppStorage("loggingEnabled") private var loggingEnabled = false
     @State private var hasPermission = false
     @StateObject private var localizationManager = LocalizationManager.shared
+    @State private var permissionCheckTimer: Timer?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -111,11 +112,34 @@ struct SettingsView: View {
         .frame(width: 320)
         .onAppear {
             refreshPermission()
+            startAutoRefresh()
+        }
+        .onDisappear {
+            stopAutoRefresh()
+        }
+        .onChange(of: hasPermission) { newValue in
+            if newValue {
+                stopAutoRefresh()
+            }
         }
     }
 
     private func refreshPermission() {
         hasPermission = AXIsProcessTrusted()
+    }
+
+    private func startAutoRefresh() {
+        guard !hasPermission else { return }
+        permissionCheckTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+            DispatchQueue.main.async {
+                refreshPermission()
+            }
+        }
+    }
+
+    private func stopAutoRefresh() {
+        permissionCheckTimer?.invalidate()
+        permissionCheckTimer = nil
     }
 }
 
