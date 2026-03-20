@@ -44,11 +44,6 @@ private func globalEventCallback(proxy: CGEventTapProxy, type: CGEventType, even
         return Unmanaged.passRetained(event)
     }
 
-    // 仅记录鼠标按下事件
-    if type == .leftMouseDown {
-        LogService.shared.log(category: "DockMonitor", message: "[回调] 收到事件: leftMouseDown")
-    }
-
     let consumed = monitor.handleEvent(proxy: proxy, type: type, event: event)
     return consumed ? nil : Unmanaged.passRetained(event)
 }
