@@ -8,6 +8,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private var permissionAlertShown = false
     private var settingsWindow: NSWindow?
     private var cancellables = Set<AnyCancellable>()
+    private var updateService = UpdateService.shared
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         LogService.shared.log(category: "AppDelegate", message: "应用启动: \(Bundle.main.bundlePath)")
@@ -35,6 +36,21 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
         // 启动时打开设置窗口
         openSettings()
+
+        // 启动后延迟检查更新
+        Task {
+            try? await Task.sleep(nanoseconds: 2_000_000_000) // 延迟 2 秒
+            await updateService.checkForUpdates()
+        }
+
+        // 监听更新状态变化
+        updateService.$updateAvailable
+            .sink { [weak self] _ in
+                DispatchQueue.main.async {
+                    self?.updateStatusItemMenu()
+                }
+            }
+            .store(in: &cancellables)
     }
 
     private func checkAccessibilityPermission() {
@@ -109,6 +125,19 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         logItem.target = self
         menu.addItem(logItem)
 
+        // 更新检查
+        menu.addItem(NSMenuItem.separator())
+
+        let updateTitle = updateService.updateAvailable
+            ? "\(L10n.checkForUpdates) (\(L10n.updateAvailable))"
+            : L10n.checkForUpdates
+        let updateItem = NSMenuItem(title: updateTitle, action: #selector(checkForUpdates), keyEquivalent: "")
+        updateItem.target = self
+        if updateService.updateAvailable {
+            updateItem.state = .on
+        }
+        menu.addItem(updateItem)
+
         menu.addItem(NSMenuItem.separator())
 
         let quitItem = NSMenuItem(title: L10n.quit, action: #selector(quitApp), keyEquivalent: "q")
@@ -137,6 +166,41 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         LogService.shared.openLogFolder()
     }
 
+    @objc private func checkForUpdates() {
+        Task {
+            await updateService.checkForUpdates(force: true)
+
+            await MainActor.run {
+                if updateService.updateAvailable {
+                    let alert = NSAlert()
+                    alert.messageText = L10n.updateAvailable
+                    alert.informativeText = "\(L10n.currentVersion): \(updateService.currentVersion)\n\(L10n.latestVersion): \(updateService.latestVersion ?? "?")"
+                    alert.alertStyle = .informational
+                    alert.addButton(withTitle: L10n.downloadUpdate)
+                    alert.addButton(withTitle: L10n.ok)
+
+                    if alert.runModal() == .alertFirstButtonReturn {
+                        updateService.openReleasePage()
+                    }
+                } else if let error = updateService.errorMessage {
+                    let alert = NSAlert()
+                    alert.messageText = L10n.updateError
+                    alert.informativeText = error
+                    alert.alertStyle = .warning
+                    alert.addButton(withTitle: L10n.ok)
+                    alert.runModal()
+                } else {
+                    let alert = NSAlert()
+                    alert.messageText = L10n.alreadyUpToDate
+                    alert.informativeText = "\(L10n.currentVersion): \(updateService.currentVersion)"
+                    alert.alertStyle = .informational
+                    alert.addButton(withTitle: L10n.ok)
+                    alert.runModal()
+                }
+            }
+        }
+    }
+
     @objc private func openSettings() {
         NSApplication.shared.activate(ignoringOtherApps: true)
 
@@ -156,7 +220,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
         // 创建新窗口
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 320, height: 420),
+            contentRect: NSRect(x: 0, y: 0, width: 320, height: 560),
             styleMask: [.titled, .closable],
             backing: .buffered,
             defer: false

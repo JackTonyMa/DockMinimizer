@@ -33,6 +33,7 @@ struct SettingsView: View {
     @StateObject private var localizationManager = LocalizationManager.shared
     @StateObject private var launchAtLoginManager = LaunchAtLoginManager.shared
     @StateObject private var dockMonitor = DockMonitor.shared
+    @StateObject private var updateService = UpdateService.shared
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -127,6 +128,93 @@ struct SettingsView: View {
 
             Divider()
 
+            // 更新检查区域
+            VStack(alignment: .leading, spacing: 8) {
+                // 自动检查策略
+                HStack {
+                    Text(L10n.autoCheckPolicy)
+                        .font(.caption)
+                    Spacer()
+                    Picker("", selection: Binding(
+                        get: { updateService.checkPolicy },
+                        set: { updateService.checkPolicy = $0 }
+                    )) {
+                        ForEach(UpdateCheckPolicy.allCases, id: \.self) { policy in
+                            Text(policy.displayName).tag(policy)
+                        }
+                    }
+                    .frame(width: 90)
+                }
+
+                // 版本信息
+                HStack {
+                    Text(L10n.currentVersion)
+                        .font(.caption)
+                    Text(updateService.currentVersion)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Spacer()
+                }
+
+                if updateService.isChecking {
+                    HStack {
+                        ProgressView()
+                            .scaleEffect(0.7)
+                        Text(L10n.checkingForUpdates)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                } else if updateService.updateAvailable {
+                    HStack {
+                        Image(systemName: "arrow.down.circle.fill")
+                            .foregroundColor(.green)
+                        Text(L10n.updateAvailable)
+                            .font(.caption)
+                            .foregroundColor(.green)
+                        Spacer()
+                    }
+                    HStack {
+                        Text("\(L10n.latestVersion): \(updateService.latestVersion ?? "?")")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Spacer()
+                    }
+                } else if let error = updateService.errorMessage {
+                    HStack {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(.orange)
+                        Text(error)
+                            .font(.caption)
+                            .foregroundColor(.orange)
+                            .lineLimit(2)
+                        Spacer()
+                    }
+                }
+
+                HStack {
+                    Button(L10n.checkNow) {
+                        Task {
+                            await updateService.checkForUpdates(force: true)
+                        }
+                    }
+                    .disabled(updateService.isChecking)
+
+                    if updateService.updateAvailable {
+                        Button(L10n.downloadUpdate) {
+                            updateService.openReleasePage()
+                        }
+                    }
+
+                    Spacer()
+
+                    Button(L10n.visitGitHub) {
+                        updateService.openGitHubPage()
+                    }
+                }
+            }
+
+            Divider()
+
             HStack {
                 if loggingEnabled {
                     Button(L10n.viewLogs) {
@@ -161,7 +249,7 @@ struct DockMinimizerApp: App {
         }
         .windowStyle(.automatic)
         .defaultPosition(.center)
-        .defaultSize(width: 320, height: 420)
+        .defaultSize(width: 320, height: 560)
         .commands {
             // 隐藏默认的 Window 菜单项
             CommandGroup(replacing: .windowArrangement) { }

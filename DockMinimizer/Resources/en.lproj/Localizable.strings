@@ -53,3 +53,21 @@
 "Accessibility permission has been granted, DockMinimizer is now active." = "Accessibility permission has been granted, DockMinimizer is now active.";
 "Permission Revoked" = "Permission Revoked";
 "Accessibility permission has been revoked, DockMinimizer has stopped working." = "Accessibility permission has been revoked, DockMinimizer has stopped working.";
+
+/* Update */
+"Check for Updates..." = "Check for Updates...";
+"Update Available!" = "Update Available!";
+"Current Version" = "Current Version";
+"Latest Version" = "Latest Version";
+"Checking for updates..." = "Checking for updates...";
+"You're up to date!" = "You're up to date!";
+"Failed to check for updates" = "Failed to check for updates";
+"Download Update" = "Download Update";
+"View on GitHub" = "View on GitHub";
+"Auto Check Policy" = "Auto Check";
+"On Startup" = "On Startup";
+"Daily" = "Daily";
+"Weekly" = "Weekly";
+"Disabled" = "Disabled";
+"Check Now" = "Check Now";
+"Visit GitHub" = "Visit GitHub";

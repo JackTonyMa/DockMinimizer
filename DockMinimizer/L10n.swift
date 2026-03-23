@@ -113,4 +113,22 @@ enum L10n {
     static var permissionGrantedNotificationBody: String { lm.localizedString(key: "Accessibility permission has been granted, DockMinimizer is now active.", comment: "") }
     static var permissionRevoked: String { lm.localizedString(key: "Permission Revoked", comment: "") }
     static var permissionRevokedMessage: String { lm.localizedString(key: "Accessibility permission has been revoked, DockMinimizer has stopped working.", comment: "") }
+
+    // Update
+    static var checkForUpdates: String { lm.localizedString(key: "Check for Updates...", comment: "") }
+    static var updateAvailable: String { lm.localizedString(key: "Update Available!", comment: "") }
+    static var currentVersion: String { lm.localizedString(key: "Current Version", comment: "") }
+    static var latestVersion: String { lm.localizedString(key: "Latest Version", comment: "") }
+    static var checkingForUpdates: String { lm.localizedString(key: "Checking for updates...", comment: "") }
+    static var alreadyUpToDate: String { lm.localizedString(key: "You're up to date!", comment: "") }
+    static var updateError: String { lm.localizedString(key: "Failed to check for updates", comment: "") }
+    static var downloadUpdate: String { lm.localizedString(key: "Download Update", comment: "") }
+    static var viewOnGitHub: String { lm.localizedString(key: "View on GitHub", comment: "") }
+    static var autoCheckPolicy: String { lm.localizedString(key: "Auto Check Policy", comment: "") }
+    static var onStartup: String { lm.localizedString(key: "On Startup", comment: "") }
+    static var daily: String { lm.localizedString(key: "Daily", comment: "") }
+    static var weekly: String { lm.localizedString(key: "Weekly", comment: "") }
+    static var disabled: String { lm.localizedString(key: "Disabled", comment: "") }
+    static var checkNow: String { lm.localizedString(key: "Check Now", comment: "") }
+    static var visitGitHub: String { lm.localizedString(key: "Visit GitHub", comment: "") }
 }

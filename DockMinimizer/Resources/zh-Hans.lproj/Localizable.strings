@@ -53,3 +53,21 @@
 "Accessibility permission has been granted, DockMinimizer is now active." = "辅助功能权限已授权，DockMinimizer 现已激活。";
 "Permission Revoked" = "权限已撤销";
 "Accessibility permission has been revoked, DockMinimizer has stopped working." = "辅助功能权限已撤销，DockMinimizer 已停止工作。";
+
+/* Update */
+"Check for Updates..." = "检查更新...";
+"Update Available!" = "有新版本可用！";
+"Current Version" = "当前版本";
+"Latest Version" = "最新版本";
+"Checking for updates..." = "正在检查更新...";
+"You're up to date!" = "已是最新版本！";
+"Failed to check for updates" = "检查更新失败";
+"Download Update" = "下载更新";
+"View on GitHub" = "在 GitHub 上查看";
+"Auto Check Policy" = "自动检查";
+"On Startup" = "启动时";
+"Daily" = "每天";
+"Weekly" = "每周";
+"Disabled" = "关闭";
+"Check Now" = "立即检查";
+"Visit GitHub" = "访问 GitHub";
