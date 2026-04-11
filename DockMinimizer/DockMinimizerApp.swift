@@ -30,6 +30,7 @@ class LaunchAtLoginManager: ObservableObject {
 
 struct SettingsView: View {
     @AppStorage("loggingEnabled") private var loggingEnabled = false
+    @AppStorage("showPanelOnLaunch") private var showPanelOnLaunch = true
     @StateObject private var localizationManager = LocalizationManager.shared
     @StateObject private var launchAtLoginManager = LaunchAtLoginManager.shared
     @StateObject private var dockMonitor = DockMonitor.shared
@@ -74,6 +75,10 @@ struct SettingsView: View {
                 set: { launchAtLoginManager.isEnabled = $0 }
             ))
             .help(L10n.launchAtLoginHelp)
+
+            // Show Panel on Launch
+            Toggle(L10n.showPanelOnLaunch, isOn: $showPanelOnLaunch)
+                .help(L10n.showPanelOnLaunchHelp)
 
             Divider()
 

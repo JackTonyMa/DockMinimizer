@@ -34,8 +34,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         // Start monitoring Dock clicks
         dockMonitor = DockMonitor.shared
 
-        // 启动时打开设置窗口
-        openSettings()
+        // 启动时根据设置决定是否打开设置窗口
+        // UserDefaults.bool returns false if key doesn't exist, but we want default true
+        let hasKey = UserDefaults.standard.object(forKey: "showPanelOnLaunch") != nil
+        let showPanelOnLaunch = hasKey ? UserDefaults.standard.bool(forKey: "showPanelOnLaunch") : true
+        if showPanelOnLaunch {
+            openSettings()
+        }
 
         // 启动后延迟检查更新
         Task {
