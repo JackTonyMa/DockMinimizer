@@ -15,11 +15,26 @@ class WindowMinimizer {
         let appName = app.localizedName ?? "Unknown"
         let pid = app.processIdentifier
 
+        // Never minimize Finder
+        if app.bundleIdentifier == "com.apple.finder" || appName == "Finder" {
+            return false
+        }
+
         // Check accessibility permission
         guard AXIsProcessTrusted() else {
             LogService.shared.log(level: .error, category: "WindowMinimizer", message: "辅助功能权限未授予")
             showPermissionNotification()
             return false
+        }
+
+        // If the application has no open windows, do not consume the click so the Dock can create/open a window
+        let appRef = AXUIElementCreateApplication(pid)
+        var windowsValue: AnyObject?
+        let copyRes = AXUIElementCopyAttributeValue(appRef, kAXWindowsAttribute as CFString, &windowsValue)
+        if copyRes == .success, let windows = windowsValue as? [AXUIElement] {
+            if windows.isEmpty {
+                return false
+            }
         }
 
         // Check if app is hidden
