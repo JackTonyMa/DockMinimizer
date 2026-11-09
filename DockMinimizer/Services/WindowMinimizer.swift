@@ -22,18 +22,67 @@ class WindowMinimizer {
             return false
         }
 
-        // Check if app is hidden
-        let isHidden = app.isHidden
+        let appRef = AXUIElementCreateApplication(pid)
+        var windowsValue: AnyObject?
+        guard AXUIElementCopyAttributeValue(appRef, kAXWindowsAttribute as CFString, &windowsValue) == .success,
+              let windows = windowsValue as? [AXUIElement] else {
+            // Fallback to app.hide() if accessibility window list is unavailable
+            if app.isHidden {
+                app.activate()
+                return false
+            } else {
+                app.hide()
+                return true
+            }
+        }
 
-        if isHidden {
-            // Restore: activate the app
-            let success = app.activate()
-            LogService.shared.log(category: "WindowMinimizer", message: "激活应用: \(appName) (PID: \(pid)) - \(success ? "成功" : "失败")")
+        // Filter only actual standard windows (excluding desktop scroll area, menus, popups, etc.)
+        let standardWindows = windows.filter { win in
+            var roleVal: AnyObject?
+            AXUIElementCopyAttributeValue(win, kAXRoleAttribute as CFString, &roleVal)
+            return (roleVal as? String) == (kAXWindowRole as String)
+        }
+
+        // If the application has no open standard windows, do not consume click so Dock can open/create one
+        if standardWindows.isEmpty && !app.isHidden {
+            LogService.shared.log(category: "WindowMinimizer", message: "\(appName) 无打开窗口，传递给 Dock 打开新窗口")
             return false
+        }
+
+        let allMinimized = standardWindows.allSatisfy { win in
+            var minVal: AnyObject?
+            if AXUIElementCopyAttributeValue(win, kAXMinimizedAttribute as CFString, &minVal) == .success,
+               let isMin = minVal as? Bool {
+                return isMin
+            }
+            return false
+        }
+
+        if allMinimized || app.isHidden {
+            // Restore: unminimize all standard windows and activate the app
+            for win in standardWindows {
+                AXUIElementSetAttributeValue(win, kAXMinimizedAttribute as CFString, kCFBooleanFalse)
+            }
+            let success = app.activate()
+            LogService.shared.log(category: "WindowMinimizer", message: "恢复应用窗口: \(appName) (\(standardWindows.count) 个) - \(success ? "成功" : "失败")")
+            return true
         } else {
-            // Hide: hide the entire app
-            app.hide()
-            LogService.shared.log(category: "WindowMinimizer", message: "隐藏应用: \(appName) (PID: \(pid))")
+            // Minimize all standard windows with genie animation
+            for win in standardWindows {
+                // First try setting kAXMinimizedAttribute
+                AXUIElementSetAttributeValue(win, kAXMinimizedAttribute as CFString, kCFBooleanTrue)
+
+                // If not minimized (e.g. Electron / Chromium apps), press the minimize button directly
+                var minVal: AnyObject?
+                if AXUIElementCopyAttributeValue(win, kAXMinimizedAttribute as CFString, &minVal) != .success || (minVal as? Bool) != true {
+                    var minBtnVal: AnyObject?
+                    if AXUIElementCopyAttributeValue(win, kAXMinimizeButtonAttribute as CFString, &minBtnVal) == .success,
+                       let minBtn = minBtnVal {
+                        AXUIElementPerformAction(minBtn as! AXUIElement, kAXPressAction as CFString)
+                    }
+                }
+            }
+            LogService.shared.log(category: "WindowMinimizer", message: "最小化应用窗口: \(appName) (\(standardWindows.count) 个)")
             return true
         }
     }
