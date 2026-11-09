@@ -314,11 +314,6 @@ class DockMonitor: ObservableObject {
 
         guard let clickedAppName = getAppNameAtDockLocation(location) else { return false }
 
-        // Ignore Finder: Finder is the macOS desktop service and should not be minimized on click
-        if clickedAppName == "Finder" || clickedAppName.localizedCaseInsensitiveContains("finder") {
-            return false
-        }
-
         guard let frontmostName = currentFrontmostName,
               clickedAppName == frontmostName || clickedAppName.contains(frontmostName) || frontmostName.contains(clickedAppName) else {
             return false
